@@ -1,0 +1,91 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
+  padding: 0;
+  background-color: #f4f7f9;
+  color: #333;
+}
+
+h1, h2, h3,h4,h5,h6 {
+  text-align: center;
+}
+
+form {
+  max-width: 500px;
+  margin: 0 auto 20px;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+input[type="file"] {
+  margin-right: 10px;
+}
+
+button {
+  background-color: #0078d7;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+#fileList {
+  max-width: 80%;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+
+#fileList button {
+  margin-left: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+th {
+  background-color: #0078d7;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+.delete-button{
+  background-color:rgb(205, 44, 44);
+}
+.run-button{
+  background-color:rgb(44, 205, 44);
+}
+.red-text{
+  color:rgb(205, 44, 44);
+}
+.green-text{
+  color:rgb(44, 205, 44);
+}
+.reset-button{
+  background-color:rgb(44, 44, 205);
+}

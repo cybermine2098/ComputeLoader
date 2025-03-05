@@ -1,0 +1,20 @@
+# Ignore all files under public/logs
+public/logs/*
+
+# Include public directory
+!public/
+
+# Ignore all files under uploads/
+uploads/*
+
+#ignore package-lock.json
+package-lock.json
+
+# Do not ignore files ending with .sqlite
+*.sqlite
+
+# Ignore node_modules directory
+/node_modules
+
+# Ignore keys directory
+/keys
