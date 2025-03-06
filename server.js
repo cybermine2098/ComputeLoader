@@ -7,6 +7,8 @@ const { sequelize, File, runjobs } = require('./db');
 const { Worker } = require('worker_threads');
 const { parentPort, workerData } = require('worker_threads');
 const { v4: uuidv4 } = require('uuid');
+const { arrayBuffer } = require('stream/consumers');
+const { finished } = require('stream');
 const formatMemoryUsage = (data) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`;
 const PORT = 4043
 const app = express();
@@ -52,8 +54,16 @@ app.get('/jobs', async (req, res) => {
   try {
     const activeJobs = await runjobs.findAll({ where: { active: true } });
     const finishedJobs = await runjobs.findAll({ where: { active: false } });
+    
+    for (const job of finishedJobs) {
+      const logPath = path.join(__dirname, 'public', 'logs', job.correspondinguuid + '.txt');
+      const stats = await fs.promises.stat(logPath);
+      await job.update({ size: stats.size });
+    }
+
     res.json({ active: activeJobs, finished: finishedJobs });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Unable to fetch jobs' });
   }
 });
@@ -61,7 +71,7 @@ app.get('/jobs', async (req, res) => {
 // NEW: Endpoint to delete a log file and remove its runjob record
 app.post('/deletelog', async (req, res) => {
   const jobUuid = req.body.uuid;
-  const logsDir = path.join(__dirname,'public', 'logs');
+  const logsDir = path.join(__dirname, 'public', 'logs');
   const logPath = path.join(logsDir, jobUuid + '.txt');
   try {
     await fs.promises.unlink(logPath);
@@ -78,7 +88,7 @@ app.post('/deletelog', async (req, res) => {
 });
 
 // Sync the database
-sequelize.sync({alter:true});
+sequelize.sync({ alter: true });
 
 // Handle file upload
 app.post('/upload', upload.single('file'), async (req, res) => {
@@ -100,9 +110,9 @@ app.post('/getinfo', async (req, res) => {
 app.post('/reset', async (req, res) => {
   const file = await File.findOne({ where: { filename: req.body.filename } });
   if (file) {
-    await file.update({ status: 'untested', tested: false,name:null,purpose:null });
+    await file.update({ status: 'untested', tested: false, name: null, purpose: null });
     return res.json({ success: true, message: 'file reset' });
-  }else{
+  } else {
     return res.json({ success: false, message: 'file not found' });
   }
 })
@@ -123,7 +133,7 @@ app.post('/delete', async (req, res) => {
 
 app.post('/execute', async (req, res) => {
   const passthrougharguments = req.body.arguments;
-  
+
   // Generate uuid and create runjob entry with active true
   const jobUuid = uuidv4();
   const jobEntry = await runjobs.create({
@@ -135,11 +145,11 @@ app.post('/execute', async (req, res) => {
   });
 
   // Ensure logs directory exists
-  const logsDir = path.join(__dirname,'public', 'logs');
+  const logsDir = path.join(__dirname, 'public', 'logs');
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir);
   }
-  
+
   // Updated worker script: write logs directly to file
   const workerScript = `
     const { workerData, parentPort } = require('worker_threads');
@@ -188,7 +198,7 @@ app.post('/execute', async (req, res) => {
   });
 
   worker.on('exit', async (code) => {
-    if(code !== 0){
+    if (code !== 0) {
       await jobEntry.update({ active: false, status: 'failed', endtime: new Date() });
     } else {
       await jobEntry.update({ active: false, status: 'completed', endtime: new Date() });
@@ -244,17 +254,17 @@ app.post('/test', async (req, res) => {
         await filedb.update({ status: `Missing argument ${i + 1} type` });
         return res.json({ success: false, message: 'file is missing argument type.' });
       }
-      const options = ['string', 'number', 'boolean', 'object','choice'];
+      const options = ['string', 'number', 'boolean', 'object', 'choice'];
       if (!options.includes(openfile.data.arguments[i].type)) {
         await filedb.update({ status: `Invalid argument ${i + 1} type` });
         return res.json({ success: false, message: 'file has an incorrect argument type.' });
       }
-      if(openfile.data.arguments[i].type == 'choice'){
-        if(!openfile.data.arguments[i].choices){
+      if (openfile.data.arguments[i].type == 'choice') {
+        if (!openfile.data.arguments[i].choices) {
           await filedb.update({ status: `Missing argument ${i + 1} choices` });
           return res.json({ success: false, message: 'file is missing argument choices.' });
         }
-        if(openfile.data.arguments[i].choices.length == 0){
+        if (openfile.data.arguments[i].choices.length == 0) {
           await filedb.update({ status: `Missing argument ${i + 1} choices` });
           return res.json({ success: false, message: 'file is missing argument choices.' });
         }
@@ -297,15 +307,13 @@ app.get('/', (req, res) => {
 });
 // Start the HTTPS server
 https.createServer(options, app).listen(PORT, async () => {
-  await runjobs.update({ active: false, status: 'Could not finish before script close.' }, { where: { active: true}});
+  await runjobs.update({ active: false, status: 'Could not finish before script close.' }, { where: { active: true } });
   console.log('Open! https://localhost:4043/index.html');
-  const memoryData = process.memoryUsage();
-
-const memoryUsage = {
-  rss: `${formatMemoryUsage(memoryData.rss)} -> Resident Set Size - total memory allocated for the process execution`,
-  heapTotal: `${formatMemoryUsage(memoryData.heapTotal)} -> total size of the allocated heap`,
-  heapUsed: `${formatMemoryUsage(memoryData.heapUsed)} -> actual memory used during the execution`,
-  external: `${formatMemoryUsage(memoryData.external)} -> V8 external memory`,
-};
-console.log('Memory usage:', memoryUsage);
+  setInterval(() => {
+    const memoryData = process.memoryUsage();
+    const heapUsed = memoryData.heapUsed;
+    const heapTotal = memoryData.heapTotal;
+    const percent = (heapUsed / heapTotal) * 100;
+    process.stdout.write(`\rMemory Usage: ${formatMemoryUsage(heapUsed)} / ${formatMemoryUsage(heapTotal)} (${percent.toFixed(2)}%)`);
+  }, 250);
 });

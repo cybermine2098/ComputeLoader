@@ -2,8 +2,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 20px;
   padding: 0;
-  background-color: #f4f7f9;
-  color: #333;
+  background-color: #121212;
+  color: #f9f9f9;
 }
 
 h1, h2, h3,h4,h5,h6 {
@@ -14,7 +14,8 @@ form {
   max-width: 500px;
   margin: 0 auto 20px;
   padding: 15px;
-  background: #fff;
+  background: #1e1e1e;
+  color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -24,7 +25,7 @@ input[type="file"] {
 }
 
 button {
-  background-color: #0078d7;
+  background-color: #0d6efd; /* Bootstrap-like primary color */
   color: #fff;
   border: none;
   padding: 6px 12px;
@@ -34,7 +35,7 @@ button {
 }
 
 button:hover {
-  background-color: #005fa3;
+  background-color: #0b5ed7;
 }
 
 #fileList {
@@ -50,7 +51,8 @@ button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  background: #1e1e1e;
+  color: #f9f9f9;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -61,11 +63,11 @@ th, td {
 }
 
 tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #2b2b2b;
 }
 
 th {
-  background-color: #0078d7;
+  background-color: #6c2bc6;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.03em;

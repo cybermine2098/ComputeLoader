@@ -39,6 +39,18 @@ function normalize(time) {
   }
 }
 
+function formatSize(bytes) {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  } else if (bytes < 1048576) {
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  } else if (bytes < 1073741824) {
+    return `${(bytes / 1048576).toFixed(2)} MB`;
+  } else {
+    return `${(bytes / 1073741824).toFixed(2)} GB`;
+  }
+}
+
 async function reloadFiles() {
   const fileListDiv = document.getElementById('fileList');
   fileListDiv.innerHTML = '';
@@ -223,7 +235,7 @@ async function reloadJobs() {
           <td>${job.correspondinguuid}</td>
           <td>${job.filename}</td>
           <td>${job.status} in ${normalize(new Date(job.endtime) - new Date(job.starttime))}</td>
-          <td><a href="/logs/${job.correspondinguuid}.txt">View Log</a></td>
+          <td><a href="/logs/${job.correspondinguuid}.txt">View Log (${formatSize(job.size)})</a></td>
           <td>
             <button class="btn btn-danger btn-sm" onclick="deleteLog('${job.correspondinguuid}')">Delete Log</button>
           </td>

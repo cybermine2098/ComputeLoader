@@ -13,3 +13,25 @@
 - Required feilds are not actually required
 - Files uploaded directly to the server are not scanned
 - Occasional multi-upload and incorrect refresh seen when uploading medium-size files
+
+## Versions
+### 1.0
+Required modules:
+`express 4.21.2`,`fs ^0.0.1-security`,`https ^1.0.0`,`multer ^1.4.5-lts.1`,`path ^0.12.7`,`sequelize ^6.37.5`,`sqlite3 ^5.1.7`
+- Provides support for file uploads, and tests each file for integrity and errors.
+- Supports Inputs:
+> String
+> Number
+> Object
+> Choice
+> Boolean
+- Supports runtimes and summaries of run execution, keeps logs of each execution output.
+- Allows for deletion of files on the remote server.
+- Allows for automatic script failure detection.
+### 1.1
+Required modules:
+`express 4.21.2`,`fs ^0.0.1-security`,`https ^1.0.0`,`multer ^1.4.5-lts.1`,`path ^0.12.7`,`sequelize ^6.37.5`,`sqlite3 ^5.1.7`
+- Fixes a required field issue
+- Keeps tabs on Process memory issue for host process
+- Fixes minor formatting issues within the job launching interface.
+- Adds a new storage usage statistic onto each process job, allowing you to see how large files are before you try to load a 23 gigabyte text file onto your chromebook with only 4GB of ram, crashing it instantly.

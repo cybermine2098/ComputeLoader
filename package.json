@@ -9,13 +9,13 @@
     "sqlite3": "^5.1.7"
   },
   "name": "computeloader",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "server.js",
   "scripts": {
     "start": "node --max-old-space-size=8192 server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "author": "cyber.98",
+  "license": "MIT",
+  "description": "A frontend compute loader for hard-working javascript loads over a long period of time."
 }

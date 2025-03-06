@@ -32,9 +32,9 @@ function normalize(time) {
         return `${time}ms`;
     } else if (time < 60000) {
         return `${(time / 1000).toFixed(2)}s`;
-    } else if(time < 3600000){
+    } else if (time < 3600000) {
         return `${(time / 60000).toFixed(2)}m`;
-    }else{
+    } else {
         return `${(time / 3600000).toFixed(2)}h`;
     }
 }
@@ -108,26 +108,32 @@ async function init() {
                 }
             }
         }
-        if(data.data.configuration.external_dependent){
+        if (data.data.configuration.external_dependent) {
             document.getElementById('external_dependent').innerHTML = `<p class='red-text'>This script is dependent on the following external services:<br>${data.data.configuration.external_urls.map(dat => `<a target='_blank' href=${dat}>${dat}</a>`).join('<br>')}</p>`;
-        }else{
+        } else {
             document.getElementById('external_dependent').innerHTML = `<p class='green-text'>This script is not dependent on external services</p>`;
         }
         document.getElementById('executiontime').innerHTML = `<p class='green-text'>Ideal execution time: ${normalize(data.data.configuration.ideal_execution)}<br>Rough max execution time: ${normalize(data.data.configuration.maximum_execution)}</p>`;
         const executebutton = document.createElement('button');
         executebutton.innerHTML = 'Execute';
-        executebutton.classList.add('btn', 'btn-success','form-control');
+        executebutton.classList.add('btn', 'btn-success', 'form-control');
         executebutton.onclick = async () => {
-            Array.from(document.getElementById('inputsform').children).filter(dat => dat.tagName === 'DIV').map(dat => {
-                const input = dat.querySelector('textarea');
-                if(!input) return;
-                try{
-                    JSON.parse('{'+input.value+'}');
-                }catch(e){
-                    showToast(`Failed to parse JSON in ${input.id}`, 'error');
+            const inputs = Array.from(document.getElementById('inputsform').children).filter(dat => dat.tagName === 'DIV');
+            for (const inputDiv of inputs) {
+                const input = inputDiv.querySelector('input,textarea,select');
+                if (input && input.hasAttribute('required') && !input.value) {
+                    showToast(`Please fill out the required field: ${input.id}`, 'error');
                     return;
                 }
-            })
+                if (input && input.type === 'textarea') {
+                    try {
+                        JSON.parse('{' + input.value + '}');
+                    } catch (e) {
+                        showToast(`Failed to parse JSON in ${input.id}`, 'error');
+                        return;
+                    }
+                }
+            }
             await fetch('/execute', {
                 method: 'POST',
                 headers: {
@@ -135,23 +141,23 @@ async function init() {
                 },
                 body: JSON.stringify({
                     script: targetscript,
-                    arguments: Array.from(document.getElementById('inputsform').children).filter(dat => dat.tagName === 'DIV').map(dat => {
-                        try{
+                    arguments: inputs.map(dat => {
+                        try {
                             const input = dat.querySelector('input,textarea,select');
                             if (input.type === 'checkbox') {
                                 return { name: input.id, value: input.checked };
-                            }else if(input.type === "textarea"){
-                                return { name: input.id, value: JSON.parse('{'+input.value+'}') };
-                            }else if(input.type === "number"){
+                            } else if (input.type === "textarea") {
+                                return { name: input.id, value: JSON.parse('{' + input.value + '}') };
+                            } else if (input.type === "number") {
                                 return { name: input.id, value: Number(input.value) };
-                            }else{
+                            } else {
                                 return { name: input.id, value: input.value };
                             }
-                        }catch(Err){
+                        } catch (Err) {
                             showToast(`Failed to parse ${dat.querySelector('label').innerHTML}`, 'error');
                             return;
                         }
-                        
+
                     })
                 })
             }).then(async res => {
@@ -159,7 +165,7 @@ async function init() {
                     const data = await res.json();
                     if (data.success) {
                         showToast(`Script cronjob scheduled successfully: ${targetscript}`, 'success');
-                        setTimeout(() => {window.location.href = '/index.html'},3000)
+                        setTimeout(() => { window.location.href = '/index.html' }, 3000)
                     } else {
                         showToast(`Failed to execute script: ${targetscript}`, 'error');
                     }

@@ -45,7 +45,7 @@ const runjobs = sequelize.define('runjobs', {
   },
   endtime:{
     type: DataTypes.DATE,
-    },
+  },
   correspondinguuid: {
     type: DataTypes.STRING,
     allowNull: false
@@ -53,6 +53,10 @@ const runjobs = sequelize.define('runjobs', {
   active:{
     type: DataTypes.BOOLEAN,
     defaultValue: true,
+  },
+  size:{
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   }
 });
 
